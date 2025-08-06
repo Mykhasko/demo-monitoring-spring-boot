@@ -1,0 +1,73 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - spring-boot-app-logs:/var/log/demo-monitoring-spring-boot
+    environment:
+      - LOG_FILE_PATH=/var/log/demo-monitoring-spring-boot
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - app-network
+
+  promtail:
+    image: grafana/promtail:2.9.15
+    volumes:
+      - spring-boot-app-logs:/var/log/demo-monitoring-spring-boot
+      - ./monitoring/promtail-config.yaml:/etc/promtail/config.yaml
+    command: -config.file=/etc/promtail/config.yaml
+    networks:
+      - app-network
+
+  loki:
+    image: grafana/loki:2.9.15
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./monitoring/loki-config.yaml:/etc/loki/config.yaml
+    depends_on:
+      - promtail
+    networks:
+      - app-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yaml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    depends_on:
+      - app
+    networks:
+      - app-network
+
+  grafana:
+    image: grafana/grafana:10.4.19
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    depends_on:
+      - loki
+      - prometheus
+    networks:
+      - app-network
+
+volumes:
+  spring-boot-app-logs:
+    driver: local
+  grafana-storage:
+    driver: local
+  prometheus-data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge

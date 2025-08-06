@@ -1,0 +1,39 @@
+# Gradle files
+build/
+.gradle/
+out/
+
+# IDE files
+.idea/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Logs
+log/
+*.log
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Ignore configuration and environment files
+.env
+local.properties
+
+#Docker Compose files
+docker-compose.yml
+docker-compose.override.yml
+compose.yaml
+
+#Documentation
+docs/
+README.md
+HELP.md
+

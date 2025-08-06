@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+
+    <springProperty scope="context" name="springAppName" source="spring.application.name" />
+    <springProperty scope="context" name="LOG_FILE_PATH" source="logging.file.path" />
+
+    <property name="LOG_FILE" value="${LOG_FILE_PATH}/app.log" />
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!--
+    This appender writes logs to a file, which Promtail will then scrape.
+    The file path is configured in application.yml.
+    -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_FILE}</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_FILE}.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!--
+    This is the special appender for Loki. It's configured to push logs
+    to the Loki HTTP API. We'll add labels to the logs to make them
+    easily searchable in Grafana.
+    Make sure you have the Loki4j library in your dependencies.
+    You can add it via Maven or Gradle:
+    Maven:
+    <dependency>
+        <groupId>com.github.loki4j</groupId>
+        <artifactId>loki4j-logback</artifactId>
+        <version>1.0.0</version>
+    </dependency>
+    Gradle:
+    implementation 'com.github.loki4j:loki4j-logback:1.0.0'
+    Note: Adjust the version as needed.
+    -->
+<!--    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">-->
+<!--        <http>-->
+<!--            &lt;!&ndash; The URL for your Loki instance. Make sure this is correct. &ndash;&gt;-->
+<!--            <url>http://loki:3100/loki/api/v1/push</url>-->
+<!--        </http>-->
+<!--        <format>-->
+<!--            <label>-->
+<!--                &lt;!&ndash;-->
+<!--                Define labels for your log streams.-->
+<!--                The 'app' label will be your Spring application name.-->
+<!--                The 'level' label will be the log level (INFO, DEBUG, etc.).-->
+<!--                &ndash;&gt;-->
+<!--                <pattern>app=${springAppName},level=%level</pattern>-->
+<!--                <readMarkers>true</readMarkers>-->
+<!--            </label>-->
+<!--            <message>-->
+<!--                &lt;!&ndash; Use a JSON format for logs to make them easily parseable. &ndash;&gt;-->
+<!--                <pattern>{"message":"%msg", "thread":"%thread", "class":"%logger{36}"}</pattern>-->
+<!--            </message>-->
+<!--        </format>-->
+<!--    </appender>-->
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+        <!-- Uncomment the following line to enable Loki logging -->
+        <!-- <appender-ref ref="LOKI" />-->
+    </root>
+
+</configuration>

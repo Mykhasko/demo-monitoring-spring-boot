@@ -1,0 +1,23 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  # Promtail will record the last position it read from each log file here.
+  # This file will be created inside the Promtail container.
+  filename: /tmp/positions.yaml
+
+clients:
+  # The URL for your Loki instance. Within the Docker network, use the service name.
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: demo-monitoring-spring-boot-logs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          # These labels are added to every log stream scraped by this config.
+          job: demo-monitoring-spring-boot-app
+          # The path to the logs inside the Promtail container, which is mounted from the host.
+          __path__: /var/log/demo-monitoring-spring-boot/*.log
