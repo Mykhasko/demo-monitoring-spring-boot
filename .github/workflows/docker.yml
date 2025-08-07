@@ -5,9 +5,12 @@ on:
     branches: [ master ]
 
 jobs:
-  build-and-push:
+  build-and-push-docker-image:
     runs-on: ubuntu-latest
 
+
+    env:
+      IMAGE_NAME: ghcr.io/${{ github.repository | lower }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -24,4 +27,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository }}:latest
+          tags: ghcr.io/${{ env.IMAGE_NAME }}:latest
