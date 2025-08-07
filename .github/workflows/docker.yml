@@ -10,7 +10,7 @@ jobs:
 
 
     env:
-      IMAGE_NAME: ${{ github.repository }} | [:lower]]
+      IMAGE_NAME: ${{ github.repository }} | [:lower]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
