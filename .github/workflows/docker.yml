@@ -6,6 +6,10 @@ on:
 
 jobs:
   build-and-push-docker-image:
+    permissions:
+        contents: read
+        packages: write
+
     runs-on: ubuntu-latest
 
     steps:
