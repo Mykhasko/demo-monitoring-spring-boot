@@ -6,7 +6,6 @@ This is a sample Spring Boot application using Gradle.
 
 - JDK 24
 - Gradle
-- Docker Compose (Podman) if needed for infrastructure
 
 ## Build and Run
 
